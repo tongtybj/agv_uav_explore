@@ -44,9 +44,13 @@ catkin_package(
 
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+ include
   ${catkin_INCLUDE_DIRS}
 )
+
+add_executable(existing_path_generator src/existing_path_generator.cpp)
+target_link_libraries (existing_path_generator ${catkin_LIBRARIES})
+
 
 
 catkin_install_python(PROGRAMS
