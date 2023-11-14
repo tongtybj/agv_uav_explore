@@ -8,12 +8,16 @@ project(agv_explore)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  costmap_2d
+  geometry_msgs
+  nav_core
+  nav_msgs
+  message_generation
   roscpp
   rospy
   std_msgs
   sensor_msgs
   tf
-  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -50,6 +54,12 @@ include_directories(
 
 add_executable(existing_path_generator src/existing_path_generator.cpp)
 target_link_libraries (existing_path_generator ${catkin_LIBRARIES})
+
+add_library(existing_path_global_planner src/existing_path_global_planner.cpp)
+target_link_libraries(existing_path_global_planner ${catkin_LIBRARIES})
+
+add_executable(existing_path_global_planner_test src/existing_path_global_planner_test.cpp)
+target_link_libraries (existing_path_global_planner_test existing_path_global_planner ${catkin_LIBRARIES})
 
 
 

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="path_map" />
+  <node pkg="map_server" name="map_server"  type="map_server" args="$(arg path_map)" >
+    <remap from = "/map" to = "/path_map" />
+  </node>
+
+  <node pkg="agv_explore" name="existing_path_global_planner"  type="existing_path_global_planner_test" output="screen">
+    <param name="global_planner/existing_path_topic_name" value="/path_map" />
+  </node>
+
+
+  <!-- rviz -->
+  <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find agv_explore)/config/existing_path_global_planner_test.rviz" />
+
+
+</launch>
