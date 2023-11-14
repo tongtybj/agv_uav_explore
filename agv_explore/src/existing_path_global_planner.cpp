@@ -78,38 +78,60 @@ namespace navfn {
 
     // TODO: use the default navfn to find the best path for this short route
 
+#if 0
+    int prev_x = 0;
+    int prev_y = 0;
+
     int c_x, c_y;
     worldTomap(map, p_x, p_y, c_x, c_y);
 
     int m_radius = 1;
     while (m_radius < max_radius / resolution)
       {
-
-        int prev_x = c_x;
-        int prev_y = c_y;
         for (double theta = 0; theta < 2 * M_PI; theta += 0.01)
           {
-            int x = cos(theta) * m_radius + c_x;
-            int y = sin(theta) * m_radius + c_y;
+            m_x = cos(theta) * m_radius + c_x;
+            m_y = sin(theta) * m_radius + c_y;
 
-            if (x < 0 || x >= width || y < 0 || y >= height) continue;
+            if (m_x < 0 || m_x >= width || m_y < 0 || m_y >= height) continue;
 
-            if (prev_x == x && prev_y == y) continue;
+            if (prev_x == m_x && prev_y == m_y) continue;
 
-            if (map.data.at(x + y * width) > 0)
-              {
-                m_x = x;
-                m_y = y;
-                return true;
-              }
+            if (map.data.at(m_x + m_y * width) > 0) return true;
 
-            prev_x = x;
-            prev_y = y;
+            prev_x = m_x;
+            prev_y = m_y;
           }
-
         m_radius ++;
       }
+#else
 
+    double radius = resolution;
+    int prev_x = 0;
+    int prev_y = 0;
+
+    while (radius < max_radius)
+      {
+        for (double theta = 0; theta < 2 * M_PI; theta += 0.01)
+          {
+            double w_x = cos(theta) * radius + p_x;
+            double w_y = sin(theta) * radius + p_y;
+
+            worldTomap(map, w_x, w_y, m_x, m_y);
+
+            if (m_x < 0 || m_x >= width || m_y < 0 || m_y >= height) continue;
+
+            if (prev_x == m_x && prev_y == m_y) continue;
+
+            if (map.data.at(m_x + m_y * width) > 0) return true;
+
+            prev_x = m_x;
+            prev_y = m_y;
+          }
+
+        radius += resolution;
+      }
+#endif
     m_x = 0;
     m_y = 0;
 
