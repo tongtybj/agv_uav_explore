@@ -14,6 +14,8 @@
     <arg name="move_forward_only" value="$(arg move_forward_only)"/>
   </include>
   <param name="/move_base/base_global_planner" value="navfn/ExistingPathGlobalPlanner" />
+  <param name="/move_base/DWAPlannerROS/occdist_scale" value="0.02" /> <!--0.05 will be stuck in the goal position when goal is surrounded by obstacle  -->
+  <param name="/move_base/DWAPlannerROS/path_distance_bias" value="100" /> <!-- default value (32) is too small  -->
 
   <!-- Map server for existing path -->
   <node pkg="map_server" name="map_server_for_existing_path" type="map_server" args="$(arg path_file)" launch-prefix="bash -c 'sleep 3; $0 $@' ">
