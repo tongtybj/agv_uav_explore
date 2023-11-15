@@ -58,6 +58,7 @@ namespace navfn
     void mapToWorld(const nav_msgs::OccupancyGrid& map, const int &mx, const int &my, double& wx, double& wy);
 
     void existPathMapCallback(const nav_msgs::OccupancyGridConstPtr &msg);
+    double distance(geometry_msgs::Point p1, geometry_msgs::Point p2);
 
     double default_tolerance_;
     double path_resolution_;

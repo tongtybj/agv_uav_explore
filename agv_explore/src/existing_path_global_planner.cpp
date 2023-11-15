@@ -145,6 +145,9 @@ namespace navfn {
 
     boost::mutex::scoped_lock lock(mutex_);
 
+    ROS_INFO("start point: %f, %f", start.pose.position.x, start.pose.position.y);
+    ROS_INFO("goal point: %f, %f", goal.pose.position.x, goal.pose.position.y);
+
     if(!initialized_){
       ROS_ERROR("This planner has not been initialized yet, but it is being used, please call initialize() before use");
       return false;
@@ -212,45 +215,59 @@ namespace navfn {
       return false;
     }
 
-    /* 3. generate intermediate trajectory based on the the existing path map */
-    std::vector<a_star::Point> a_star_path;
-    a_star::Point start_p(start_closest_m_x, start_closest_m_y);
-    a_star::Point goal_p(goal_closest_m_x, goal_closest_m_y);
+    geometry_msgs::Point goal_closest_point;
+    mapToWorld(existing_path_map_, goal_closest_m_x, goal_closest_m_y,
+               goal_closest_point.x, goal_closest_point.y);
 
-    find = a_star::astarSearch(existing_path_grid_, start_p, goal_p, a_star_path);
-    if (!find) {
-      ROS_ERROR("can not find path by A*");
 
-      /* test */
-      geometry_msgs::Point goal_closest_point;
-      mapToWorld(existing_path_map_, goal_closest_m_x, goal_closest_m_y,
-                 goal_closest_point.x, goal_closest_point.y);
+    double dist1 = distance(start.pose.position, goal.pose.position);
+    double dist2 = distance(goal_closest_point,  goal.pose.position);
+
+
+    if (dist1 > dist2) {
+
+      /* 3. generate intermediate trajectory based on the the existing path map */
+      std::vector<a_star::Point> a_star_path;
+      a_star::Point start_p(start_closest_m_x, start_closest_m_y);
+      a_star::Point goal_p(goal_closest_m_x, goal_closest_m_y);
+
+      find = a_star::astarSearch(existing_path_grid_, start_p, goal_p, a_star_path);
+      if (!find) {
+        ROS_ERROR("can not find path by A*");
+
+        /* test */
+        geometry_msgs::Point goal_closest_point;
+        mapToWorld(existing_path_map_, goal_closest_m_x, goal_closest_m_y,
+                   goal_closest_point.x, goal_closest_point.y);
+        /* linear interpolarion: [goal_point, goal_closest_point] */
+        auto last_path = linearInterpolation(goal_closest_point, goal.pose.position);
+        plan.insert(plan.end(), last_path.begin() + 1, last_path.end());
+
+        plan.front() = start;
+        plan.back() = goal;
+
+        publishPlan(plan, 0.0, 1.0, 0.0, 0.0);
+
+        return false;
+      }
+
+      for (auto m_p: a_star_path) {
+        geometry_msgs::PoseStamped w_pose;
+        w_pose.header.frame_id = global_frame_;
+        w_pose.pose.orientation.w = 1.0;
+        mapToWorld(existing_path_map_, m_p.x, m_p.y, w_pose.pose.position.x, w_pose.pose.position.y);
+        plan.push_back(w_pose);
+      }
+
       /* linear interpolarion: [goal_point, goal_closest_point] */
       auto last_path = linearInterpolation(goal_closest_point, goal.pose.position);
       plan.insert(plan.end(), last_path.begin() + 1, last_path.end());
 
-      plan.front() = start;
-      plan.back() = goal;
-
-      publishPlan(plan, 0.0, 1.0, 0.0, 0.0);
-
-      return false;
+    } else {
+      ROS_INFO("directly connect start and gaol points");
+      plan = linearInterpolation(start.pose.position, goal.pose.position);
     }
 
-    for (auto m_p: a_star_path) {
-      geometry_msgs::PoseStamped w_pose;
-      w_pose.header.frame_id = global_frame_;
-      w_pose.pose.orientation.w = 1.0;
-      mapToWorld(existing_path_map_, m_p.x, m_p.y, w_pose.pose.position.x, w_pose.pose.position.y);
-      plan.push_back(w_pose);
-    }
-
-    geometry_msgs::Point goal_closest_point;
-    mapToWorld(existing_path_map_, goal_closest_m_x, goal_closest_m_y,
-               goal_closest_point.x, goal_closest_point.y);
-    /* linear interpolarion: [goal_point, goal_closest_point] */
-    auto last_path = linearInterpolation(goal_closest_point, goal.pose.position);
-    plan.insert(plan.end(), last_path.begin() + 1, last_path.end());
 
 
     /* to set the orientation */
@@ -351,6 +368,9 @@ namespace navfn {
     wy = origin_y + my * resolution;
   }
 
+  double ExistingPathGlobalPlanner::distance(geometry_msgs::Point p1, geometry_msgs::Point p2) {
+    return hypot(p1.x - p2.x, p1.y - p2.y);
+  }
 
 };
 
