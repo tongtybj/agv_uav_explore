@@ -16,7 +16,7 @@
   <param name="/move_base/base_global_planner" value="navfn/ExistingPathGlobalPlanner" />
 
   <!-- Map server for existing path -->
-  <node pkg="map_server" name="map_server_for_existing_path" type="map_server" args="$(arg path_file)">
+  <node pkg="map_server" name="map_server_for_existing_path" type="map_server" args="$(arg path_file)" launch-prefix="bash -c 'sleep 3; $0 $@' ">
     <remap from = "/map" to = "/path_map" />
   </node>
 
