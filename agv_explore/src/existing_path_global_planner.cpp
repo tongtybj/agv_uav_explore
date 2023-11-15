@@ -30,7 +30,7 @@ namespace navfn {
 
       plan_pub_ = private_nh.advertise<nav_msgs::Path>("plan", 1);
       std::string topic_name;
-      private_nh.param("existing_path_topic_name", topic_name, std::string("trajectory_list"));
+      private_nh.param("existing_path_topic_name", topic_name, std::string("/path_map"));
       existing_path_map_sub_ = private_nh.subscribe(topic_name, 1, &ExistingPathGlobalPlanner::existPathMapCallback, this);
 
       private_nh.param("default_tolerance", default_tolerance_, 0.0);
