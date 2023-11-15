@@ -1,0 +1,7 @@
+<library path="lib/libexisting_path_global_planner">
+  <class name="navfn/ExistingPathGlobalPlanner" type="navfn::ExistingPathGlobalPlanner" base_class_type="nav_core::BaseGlobalPlanner">
+    <description>
+      A implementation of global planner based on an existing path
+    </description>
+  </class>
+</library>

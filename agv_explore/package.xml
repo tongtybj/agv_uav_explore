@@ -32,5 +32,10 @@
   <exec_depend>turtlebot3_navigation</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>navigation</exec_depend>
+  <exec_depend>nav_core</exec_depend>
+
+  <export>
+    <nav_core plugin="${prefix}/bgp_plugin.xml" />
+  </export>
 
 </package>
