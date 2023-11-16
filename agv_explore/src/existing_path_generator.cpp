@@ -13,6 +13,7 @@ class ExistingPathGenerator
 
     nhp_.param("map_frame", map_frame_, std::string("map"));
     nhp_.param("body_frame", body_frame_, std::string("base_link"));
+    nhp_.param("inflate_pixel", inflate_pixel_, 2);
 
     path_pub_ = nh_.advertise<nav_msgs::Path>("path", 1);
     map_pub_ = nh_.advertise<nav_msgs::OccupancyGrid>("path_map", 1);
@@ -44,6 +45,7 @@ class ExistingPathGenerator
   ros::Timer main_timer_;
 
   std::string map_frame_, body_frame_;
+  int inflate_pixel_;
 
   void mapCallback(const nav_msgs::OccupancyGridConstPtr &msg)
   {
@@ -97,6 +99,16 @@ class ExistingPathGenerator
     int h = (tf.transform.translation.y - path_map_.info.origin.position.y) / resolution;
     int index = w + path_map_.info.width * h;
     path_map_.data.at(index) = 100;
+
+    if (inflate_pixel_ > 0) {
+      for (int i = - inflate_pixel_; i < inflate_pixel_; i++) {
+        for (int j = - inflate_pixel_; j < inflate_pixel_; j++) {
+          int index = (w+i) + path_map_.info.width * (h+j);
+          path_map_.data.at(index) = 100;
+        }
+      }
+    }
+
     map_pub_.publish(path_map_);
   }
 
