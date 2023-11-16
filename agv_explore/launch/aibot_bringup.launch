@@ -4,6 +4,8 @@
 
   <arg name="livox_hw" default="false" />
 
+  <arg name="existing_path" default="false" />
+
   <group if = "$(arg livox_hw)" >
     <include file="$(find agv_explore)/launch/myagv_livox_hw.launch" />
   </group>
@@ -59,8 +61,23 @@
     <rosparam file="$(find agv_explore)/param/navigation/base_local_planner_default_params.yaml" command="load" />
     <rosparam file="$(find agv_explore)/param/navigation/move_base_params.yaml" command="load" />
   </node>
+  <param name="/move_base/global_costmap/obstacle_layer/scan/topic" value="/livox/scan" if = "$(arg livox_hw)" />
+  <param name="/move_base/local_costmap/obstacle_layer/scan/topic" value="/livox/scan" if = "$(arg livox_hw)" />
 
-  <param name="/move_base/global_costmap/obstacle_layer/scan/topic" value="/livox/scan"/>
+  <!-- DWA parameter -->
+  <param name="/move_base/DWAPlannerROS/occdist_scale" value="0.02" /> <!--0.05 will be stuck in the goal position when goal is surrounded by obstacle  -->
+  <param name="/move_base/DWAPlannerROS/path_distance_bias" value="32" /> <!-- default value (32) is too small  -->
+
+  <group if="$(arg existing_path)">
+    <param name="/move_base/base_global_planner" value="navfn/ExistingPathGlobalPlanner" />
+
+    <!-- Map server for existing path -->
+    <arg name="path_file" default="" />
+    <node pkg="map_server" name="map_server_for_existing_path" type="map_server" args="$(arg path_file)" launch-prefix="bash -c 'sleep 3; $0 $@' ">
+      <remap from = "/map" to = "/path_map" />
+    </node>
+  </group>
+
 
   <!-- rviz -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find navigation_demo)/rviz/navigation.rviz" unless="$(arg headless)" />
