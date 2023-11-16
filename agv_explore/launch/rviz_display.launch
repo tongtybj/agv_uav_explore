@@ -1,6 +1,4 @@
 <launch>
-  <node pkg="rviz" type="rviz" name="global_gas_rviz"
-        args="-d $(find agv_explore)/config/global_gas.rviz"/>
-  <node pkg="rviz" type="rviz" name="local_gas__rviz"
-        args="-d $(find agv_explore)/config/local_gas.rviz"/>
+  <node pkg="rviz" type="rviz" name="navigation_rviz"
+        args="-d $(find agv_explore)/config/navigation.rviz"/>
 </launch>
