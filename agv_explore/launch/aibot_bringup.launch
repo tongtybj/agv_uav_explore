@@ -62,7 +62,9 @@
     <rosparam file="$(find agv_explore)/param/navigation/move_base_params.yaml" command="load" />
   </node>
   <param name="/move_base/global_costmap/obstacle_layer/scan/topic" value="/livox/scan" if = "$(arg livox_hw)" />
+  <param name="/move_base/global_costmap/obstacle_layer/scan/min_obstacle_height" value="-0.1" if = "$(arg livox_hw)" />
   <param name="/move_base/local_costmap/obstacle_layer/scan/topic" value="/livox/scan" if = "$(arg livox_hw)" />
+  <param name="/move_base/local_costmap/obstacle_layer/scan/min_obstacle_height" value="-0.1" if = "$(arg livox_hw)" />
 
   <group if="$(arg existing_path)">
     <param name="/move_base/base_global_planner" value="navfn/ExistingPathGlobalPlanner" />
