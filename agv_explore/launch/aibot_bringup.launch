@@ -64,10 +64,6 @@
   <param name="/move_base/global_costmap/obstacle_layer/scan/topic" value="/livox/scan" if = "$(arg livox_hw)" />
   <param name="/move_base/local_costmap/obstacle_layer/scan/topic" value="/livox/scan" if = "$(arg livox_hw)" />
 
-  <!-- DWA parameter -->
-  <param name="/move_base/DWAPlannerROS/occdist_scale" value="0.02" /> <!--0.05 will be stuck in the goal position when goal is surrounded by obstacle  -->
-  <param name="/move_base/DWAPlannerROS/path_distance_bias" value="32" /> <!-- default value (32) is too small  -->
-
   <group if="$(arg existing_path)">
     <param name="/move_base/base_global_planner" value="navfn/ExistingPathGlobalPlanner" />
 
