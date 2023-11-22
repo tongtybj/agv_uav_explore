@@ -16,7 +16,9 @@ $ roslaunch fast_lio mapping_mid360.launch rviz:=false livox_driver:=true
 
 ### @ livox vim4
 
-$ roslaunch fast_lio pcd2map.launch file_name:=`rospack find fast_lio`/PCD/8-326_scans.pcd min_height:=-0.1 map_name:=map-name  # 8-326
+$ roslaunch fast_lio pcd2map.launch file_name:=`rospack find fast_lio`/PCD/8-326_scans.pcd min_height:=-0.1 map_name:=map-name width:=10.0 height:=10.0
+*note*: `width` and `height` effect the size of the existing path map, so please set to a sufficient size
+
 
 ### @ myagv
 
@@ -40,8 +42,6 @@ $ roslaunch agv_explore rviz_display.launch
 
 
 ## [Additional] Generate Existing Path Mapg
-### @ myagv
-$ rosrun agv_explore existing_path_generator
 
 ### @ myagv
 $ rosrun agv_explore existing_path_generator
