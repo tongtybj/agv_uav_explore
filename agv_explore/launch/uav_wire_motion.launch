@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="wire_bias" default="0.01" />
+
+  <!-- dynamixel controller -->
+  <include file="$(find dynamixel_workbench_controllers)/launch/dynamixel_controllers.launch">
+    <arg name="use_moveit" value="true" />
+  </include>
+
+  <param name="dynamixel_info" value="$(find agv_explore)/config/dynamixel_config.yaml"/>
+
+  <!-- wire motion -->
+  <node pkg="agv_explore" type="uav_wire_motion.py" name="uav_wire_motion" output="screen">
+    <remap from="uav/cog/odom" to="quadrotor/uav/cog/odom"/>
+    <param name="wire_bias" value="$(arg wire_bias)" />
+  </node>
+</launch>
