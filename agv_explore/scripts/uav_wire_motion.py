@@ -7,6 +7,7 @@ import time
 from nav_msgs.msg import Odometry
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from sensor_msgs.msg import JointState
+from std_msgs.msg import UInt8
 
 class UavWireMotion:
     def __init__(self):
@@ -23,9 +24,13 @@ class UavWireMotion:
 
         self.tension_mode = False
 
+        self.flight_state = None
+
         self.wire_bias = rospy.get_param("~wire_bias", 0.02)
         self.normal_torque = rospy.get_param("~normal_torque", 20)
         self.wind_torque = rospy.get_param("~wind_torque", 5)
+        self.stong_wind_torque = rospy.get_param("~strong_wind_torque", 50)
+
 
         # wire (regression) model
         # self.a_vec = rospy.get_param("~wire_model", [0.0])
@@ -39,6 +44,7 @@ class UavWireMotion:
         self.servo_torque_cmd_pub = rospy.Publisher("dynamixel_workbench/cmd_current", JointState, queue_size=1)
 
         self.uav_odom_sub = rospy.Subscriber("uav/cog/odom", Odometry, self.odom_callback)
+        self.flight_state_sub = rospy.Subscriber("flight_state", UInt8, self.flight_state_callback)
         self.servo_state_sub = rospy.Subscriber("dynamixel_workbench/joint_states", JointState, self.servo_state_callback)
 
         time.sleep(0.5)
@@ -50,6 +56,27 @@ class UavWireMotion:
         rospy.Timer(rospy.Duration(0.05), self.timer_callback) # 20 Hz
 
         rospy.spin()
+
+    def flight_state_callback(self, msg):
+
+        if msg.data >= 16:
+            # skip if low battery or force landing
+            return
+
+        if msg.data == 4 and self.flight_state != 4:
+
+            # give a stronger torque for winding
+            cur_cmd = JointState()
+            cur_cmd.name.append(self.servo_name)
+            cur_cmd.position.append(0)
+            cur_cmd.velocity.append(0)
+            cur_cmd.effort.append(self.stong_wind_torque)
+            self.servo_torque_cmd_pub.publish(cur_cmd)
+
+            rospy.loginfo("send strong wind torque")
+
+
+        self.flight_state = msg.data
 
     def odom_callback(self, msg):
 
@@ -154,6 +181,10 @@ class UavWireMotion:
         # ang = 0
         # for i, a in enumerate(self.a_vec)):
         #     ang += a * pow(d, i)
+
+        if self.flight_state == 4:
+            # Landing Phase
+            ang = self.servo_init_angle
 
         rospy.loginfo_throttle(1.0, "distance: {}; angle: {}".format(d, ang))
 
