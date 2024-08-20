@@ -6,14 +6,11 @@
 
   <node pkg="cooperative_patrol" type="patrol_motion.py" name="patrol_state_machine" output="screen">
     <rosparam file="$(find cooperative_patrol)/param/patrol/$(arg waypoint_file)" command="load" />
-    <remap from="uav/start" to="/quadrotor/teleop_command/start"/>
-    <remap from="uav/takeoff" to="/quadrotor/teleop_command/takeoff"/>
-    <remap from="uav/land" to="/quadrotor/teleop_command/land"/>
-    <remap from="uav/nav" to="/quadrotor/target_pose"/>
-    <remap from="uav/odom" to="/quadrotor/uav/cog/odom"/>
-    <remap from="uav/flight_state" to="/quadrotor/flight_state"/>
-    <remap from="uav/control_term" to="/quadrotor/debug/pose/pid"/>
-    <param name="uav/world_frame" value="map" if="$(arg sim)"/>
+    <param name="time_thresh" value="20.0" />
+    <param name="pos_thresh" value="0.02" />
+    <param name="yaw_thresh" value="0.02" />
+    <param name="pos_k_gain" value="2.0" />
+    <param name="yaw_k_gain" value="2.0" />
   </node>
 
   <node pkg="smach_viewer" type="smach_viewer.py" name="smach_viewer" output="screen" if="$(arg sim)" />

@@ -29,7 +29,14 @@ def main():
 
         smach.StateMachine.add('RoughApproach', RoughApproach(),
                                transitions = {'idle':'Idle',
+                                              'precise_approach':'PreciseApproach',
                                               'failed':'preempted'},
+                               remapping = {'waypoint_info': 'waypoint_info',
+                                            'cnt': 'cnt'})
+
+        smach.StateMachine.add('PreciseApproach', PreciseApproach(),
+                               transitions = {'idle':'Idle',
+                                              'failed':'Idle'},
                                remapping = {'waypoint_info': 'waypoint_info',
                                             'cnt': 'cnt'})
 
