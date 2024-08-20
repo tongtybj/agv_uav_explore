@@ -7,16 +7,6 @@
     <arg name="map_file" value="$(find cooperative_patrol)/map/turtlebot3/turtlebot3_gazebo_world_map.yaml" />
   </include>
 
-  #### UAV ####
-  <include file="$(find cooperative_patrol)/launch/uav_bringup.launch" >
-    <arg name="rm" value="false" />
-    <arg name="sim" value="true" />
-    <arg name="launch_gazebo" default="false" />
-    <arg name="spawn_x" default="-1.87"/>
-    <arg name="spawn_y" default="-1.0"/>
-    <arg name="spawn_z" default="1.0"/>
-  </include>
-
   ### Patrol ###
   <include file="$(find cooperative_patrol)/launch/patrol.launch" >
     <arg name="waypoint_file" value="turtlebot3_gazebo_wp.yaml" />
