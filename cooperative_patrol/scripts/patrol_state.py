@@ -143,6 +143,9 @@ class PreciseApproach(smach.State):
         self.map_frame = rospy.get_param("~map_frame", "map")
         self.pos_k_gain = rospy.get_param("~pos_k_gain", 0.0)
         self.yaw_k_gain = rospy.get_param("~yaw_k_gain", 0.0)
+        self.max_linear_vel = rospy.get_param("~max_linear_vel", 1.0)
+        self.max_angular_vel = rospy.get_param("~max_angular_vel", 1.0)
+
         self.time_thresh = rospy.get_param("~time_thresh", -1)
         self.pos_thresh = rospy.get_param("~pos_thresh", 0.01)
         self.yaw_thresh = rospy.get_param("~yaw_thresh", 0.01)
@@ -215,11 +218,21 @@ class PreciseApproach(smach.State):
             trans_vel = self.pos_k_gain * diff_pos
             rot_vel   = self.yaw_k_gain * diff_yaw
 
+            vel_norm = np.linalg.norm(trans_vel)
+            if vel_norm > self.max_linear_vel:
+                trans_vel = (trans_vel / vel_norm * self.max_linear_vel)
+
+            if rot_vel > self.max_angular_vel:
+                rot_vel = self.max_angular_vel
+            if rot_vel < -self.max_angular_vel:
+                rot_vel = -self.max_angular_vel
+
             msg = Twist()
             msg.linear.x = trans_vel[0]
             msg.linear.y = trans_vel[1]
-            rospy.loginfo("[Precise Approach] target vel: {}".format(trans_vel))
             msg.angular.z = rot_vel
+
+            rospy.loginfo("[Precise Approach] target vel: {}, target omega: {}".format(trans_vel, rot_vel))
             self.pub.publish(msg)
 
 
